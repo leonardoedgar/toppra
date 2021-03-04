@@ -33,14 +33,14 @@ export PYTHONPATH=/opt/openrobots/lib/python3.6/site-packages:$PYTHONPATH
 - GLPK: `sudo apt install libglpk-dev`
 - qpOASES: `sudo apt install robotpkg-qpoases` (follow http://robotpkg.openrobots.org/debian.html for robotpkg)
 - pinocchio: `sudo apt install robotpkg-pinocchio` (follow http://robotpkg.openrobots.org/debian.html for robotpkg)
-
+- OpenRAVE: (follow https://github.com/crigroup/openrave-installation)
 
 ## Building with Python bindings
 
 - Install pybind11 2.5.0
 - Build toppra-cpp with bindings on
 ``` sh
-cmake -GNinja -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DBUILD_WITH_PINOCCHIO=ON -DBUILD_WITH_qpOASES=ON -DBUILD_WITH_GLPK=ON -DPYTHON_BINDINGS=ON -DPYBIND11_PYTHON_VERSION=3.7 ..
+cmake -GNinja -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DBUILD_WITH_PINOCCHIO=ON -DBUILD_WITH_qpOASES=ON -DBUILD_WITH_GLPK=ON -DBUILD_WITH_OpenRAVE=ON -DPYTHON_BINDINGS=ON -DPYBIND11_PYTHON_VERSION=3.7 ..
 # change to 3.8 or other version as needed.
 # build and test
 ninja 
@@ -86,6 +86,3 @@ find_package(toppra)
 ...
 target_link_library(foo PUBLIC toppra::toppra)
 ```
-
-
-
