@@ -55,6 +55,35 @@ Bound Spline::pathInterval_impl() const {
     return b;
 }
 
+#ifdef OPENRAVE_FOUND
+void Spline::computeRaveTrajectory(const OpenRAVE::RobotBasePtr probot, OpenRAVE::TrajectoryBasePtr ptraj) {
+    OpenRAVE::ConfigurationSpecification spec = probot->GetActiveConfigurationSpecification("cubic");
+    spec.AddDerivativeGroups(1, false);
+    spec.AddDerivativeGroups(2, true);
+    ptraj->Init(spec);
+    std::vector<OpenRAVE::dReal> deltas (m_ts.rows());
+    deltas[0] = 0;
+
+    for (size_t i = 0; i < m_ts.rows() - 1; i++) {
+        deltas[i + 1] = m_ts[i + 1] - m_ts[i];
+    }
+
+    Vectors qs = eval(m_ts), qds = eval(m_ts, 1),
+        qdds = eval(m_ts, 2);
+    std::vector<OpenRAVE::dReal> traj_data (qs[0].rows() * 3 + 1), q, qd, qdd;
+    for (size_t i = 0; i < m_ts.rows(); i++) {
+        q = std::vector<OpenRAVE::dReal>(qs[i].data(), qs[i].data() + qs[i].rows());
+        qd = std::vector<OpenRAVE::dReal>(qds[i].data(), qds[i].data() + qds[i].rows());
+        qdd = std::vector<OpenRAVE::dReal>(qdds[i].data(), qdds[i].data() + qdds[i].rows());
+        std::move(q.begin(), q.end(), traj_data.begin());
+        std::move(qd.begin(), qd.end(), traj_data.begin() + q.size());
+        std::move(qdd.begin(), qdd.end(), traj_data.begin() + qd.size());
+        traj_data[traj_data.size() - 1] = deltas[i];
+        ptraj->Insert(ptraj->GetNumWaypoints(), traj_data);
+    }
+}
+#endif
+
 }  // namespace parametrizer
 
 }  // namespace toppra

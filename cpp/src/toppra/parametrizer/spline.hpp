@@ -4,6 +4,10 @@
 #include <toppra/parametrizer.hpp>
 #include <toppra/toppra.hpp>
 
+#ifdef OPENRAVE_FOUND
+#include <openrave-core.h>
+#endif
+
 namespace toppra {
 
 namespace parametrizer {
@@ -27,6 +31,16 @@ public:
      * @param vsquared the path velocity squared with shape (N+1,).
     */
     Spline(GeometricPathPtr path, const Vector &gridpoints, const Vector &vsquared);
+
+   /**
+    * |brief Compute an OpenRAVE trajectory equivalent to the interpolated spline.
+    * @param probot the OpenRAVE robot.
+    * @param ptraj the equivalent OpenRAVE trajectory.
+    */
+    #ifdef OPENRAVE_FOUND
+    void computeRaveTrajectory(const OpenRAVE::RobotBasePtr probot, OpenRAVE::TrajectoryBasePtr ptraj);
+    #endif
+
 private:
     /** Return joint derivatives at specified times. */
     Vectors eval_impl(const Vector &times, int order = 0) const override;
