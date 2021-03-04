@@ -12,6 +12,8 @@ option(BUILD_WITH_PINOCCHIO "Compile with Pinocchio library" OFF)
 # Solvers
 option(BUILD_WITH_qpOASES "Compile the wrapper for qpOASES" OFF)
 option(BUILD_WITH_GLPK "Compile the wrapper for GLPK (GPL license)" OFF)
+# Visualization
+option(BUILD_WITH_OpenRAVE "Compile with OpenRAVE library" OFF)
 # General options
 option(TOPPRA_DEBUG_ON "Set logging mode to on." OFF)
 option(TOPPRA_WARN_ON "Enable warning messages." ON)
@@ -46,6 +48,18 @@ if(BUILD_WITH_GLPK)
     find_package(GLPK REQUIRED)
     message(STATUS "Found glpk ${GLPK_LIBRARY} ${GLPK_INCLUDE_DIR}")
 endif(BUILD_WITH_GLPK)
+
+if (BUILD_WITH_OpenRAVE)
+    find_package(OpenRAVE REQUIRED)
+    find_package(Boost ${OpenRAVE_Boost_VERSION} EXACT COMPONENTS iostreams python thread system)
+
+    include_directories(${OpenRAVE_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR} )
+    if( Boost_INCLUDE_DIRS )
+        include_directories(${Boost_INCLUDE_DIRS})
+    endif()
+
+    link_directories(${OpenRAVE_LIBRARY_DIRS} ${Boost_LIBRARY_DIRS})
+endif(BUILD_WITH_OpenRAVE)
 
 add_subdirectory(src)
 add_subdirectory(doc)

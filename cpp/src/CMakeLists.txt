@@ -48,6 +48,13 @@ foreach(solver qpOASES GLPK)
     target_include_directories(toppra PUBLIC ${${solver}_INCLUDE_DIRS})
   endif()
 endforeach()
+
+if(BUILD_WITH_OpenRAVE)
+  target_link_libraries(toppra PUBLIC ${OpenRAVE_LIBRARIES} ${OpenRAVE_CORE_LIBRARIES} ${Boost_THREAD_LIBRARY}
+          ${Boost_SYSTEM_LIBRARY})
+  target_compile_definitions(toppra PUBLIC OPENRAVE_FOUND)
+endif(BUILD_WITH_OpenRAVE)
+
 if (TOPPRA_DEBUG_ON)
   target_compile_definitions(toppra PRIVATE TOPPRA_DEBUG_ON)
 endif()
