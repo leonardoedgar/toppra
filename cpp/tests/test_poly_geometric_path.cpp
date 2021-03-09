@@ -50,7 +50,7 @@ TEST_F(ConstructPiecewisePoly, CorrectOutputValueSecondSegment) {
   ASSERT_DOUBLE_EQ(pos(0), 1 * pow(0.5, 2) + 2 * pow(0.5, 1) + 3);
 }
 
-TEST_F(ConstructPiecewisePoly, ThrowWhenOutOfrange) {
+TEST_F(ConstructPiecewisePoly, ThrowWhenOutOfRange) {
   toppra::value_type out_of_range_pos{10};
   ASSERT_THROW(path.eval_single(out_of_range_pos, 0), std::runtime_error);
 }
@@ -60,14 +60,19 @@ TEST_F(ConstructPiecewisePoly, DeriveDerivativeOfCoefficients) {
   ASSERT_THROW(path.eval_single(out_of_range_pos, 0), std::runtime_error);
 }
 
-TEST_F(ConstructPiecewisePoly, CorrectDerivative) {
+TEST_F(ConstructPiecewisePoly, CorrectFirstDerivatives) {
   toppra::Vector pos = path.eval_single(0.5, 1);
   ASSERT_DOUBLE_EQ(pos(0), 2 * pow(0.5, 1) + 2 * 1 + 0);
 }
 
-TEST_F(ConstructPiecewisePoly, CorrectDoubldDerivative) {
+TEST_F(ConstructPiecewisePoly, CorrectSecondDerivatives) {
   toppra::Vector pos = path.eval_single(0.5, 2);
   ASSERT_DOUBLE_EQ(pos(0), 2 * 1 + 0 + 0);
+}
+
+TEST_F(ConstructPiecewisePoly, CorrectThirdDerivatives) {
+    toppra::Vector pos = path.eval_single(0.5, 3);
+    ASSERT_DOUBLE_EQ(pos(0), 0);
 }
 
 TEST_F(ConstructPiecewisePoly, ComputeManyPointsEigen) {
@@ -211,7 +216,7 @@ public:
   expected_pos = toppra::Vectors{v0, v1, v2, v3, v4};
 
   // Eval for x_eval = [0, 0.5, 1.0, 1.1, 2.5]
-  // path(x_eval, 1)=
+  // path(x_eval, 1) =
   // [[ 0.     3.   ]
   //  [ 1.125  3.125]
   //  [ 1.5    2.5  ]
@@ -224,7 +229,7 @@ public:
   v4 << -1.875, -3.875;
   expected_vel = toppra::Vectors{v0, v1, v2, v3, v4};
 
-  // path(x_eval, 2)=
+  // path(x_eval, 2) =
   // [[ 3.   1. ]
   //  [ 1.5 -0.5]
   //  [ 0.  -2. ]
@@ -236,16 +241,25 @@ public:
   v3 <<-0.3, -2.3;
   v4 <<-4.5, -6.5;
   expected_acc = toppra::Vectors{v0, v1, v2, v3, v4};
+
+  // path(x_eval, 3) =
+  // [[-3. -3.]
+  //  [-3. -3.]
+  //  [-3. -3.]
+  //  [-3. -3.]
+  //  [-3. -3.]]
+  v0 << -3, -3;
+  expected_jerk = toppra::Vectors{v0, v0, v0, v0, v0};
   }
   
 
   toppra::Vector x_eval;
   toppra::PiecewisePolyPath path;
-  toppra::Vectors expected_pos, expected_vel, expected_acc;
+  toppra::Vectors expected_pos, expected_vel, expected_acc, expected_jerk;
 };
 
 
-TEST_F(CompareWithScipyCubicSpline, 0thDerivative){
+TEST_F(CompareWithScipyCubicSpline, 0thDerivative) {
 
   auto res = path.eval(x_eval);
   for(int i=0; i < 5; i++){
@@ -253,7 +267,7 @@ TEST_F(CompareWithScipyCubicSpline, 0thDerivative){
   }
 }
 
-TEST_F(CompareWithScipyCubicSpline, 1stDerivative){
+TEST_F(CompareWithScipyCubicSpline, 1stDerivative) {
   auto res = path.eval(x_eval, 1);
   for(int i=0; i < 5; i++){
     ASSERT_TRUE(res[i].isApprox(expected_vel[i])) << "Comparing the " << i << "th" << res[i] << expected_vel[i];
@@ -261,10 +275,16 @@ TEST_F(CompareWithScipyCubicSpline, 1stDerivative){
 }
 
 
-TEST_F(CompareWithScipyCubicSpline, 2stDerivative){
+TEST_F(CompareWithScipyCubicSpline, 2stDerivative) {
   auto res = path.eval(x_eval, 2);
   for(int i=0; i < 5; i++){
     ASSERT_TRUE(res[i].isApprox(expected_acc[i])) << "Comparing the " << i << "th" << res[i] << "," << expected_acc[i];
   }
 }
 
+TEST_F(CompareWithScipyCubicSpline, 3stDerivative) {
+  auto res = path.eval(x_eval, 3);
+  for(int i=0; i < 5; i++) {
+    ASSERT_TRUE(res[i].isApprox(expected_jerk[i])) << "Comparing the " << i << "th" << res[i] << "," << expected_jerk[i];
+  }
+}
