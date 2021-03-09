@@ -3,13 +3,20 @@
 
 #include <toppra/geometric_path.hpp>
 #include <toppra/toppra.hpp>
+#include <variant>
 
 namespace toppra {
 
-/// Boundary condition
+/// Numerical boundary condition
 typedef struct {
     int order;
     Vector values;
+} NumericalBoundaryCond;
+
+/// Boundary condition
+typedef struct {
+    enum {string, numeric} type;
+    std::variant<NumericalBoundaryCond, std::string> value;
 } BoundaryCond;
 
 /**
@@ -46,7 +53,18 @@ class PiecewisePolyPath : public GeometricPath {
    * @param times Vector of times in a strictly increasing order.
    * @param bc_type Boundary conditions at the curve start and end.
    */
-  PiecewisePolyPath(const Vectors &positions, const Vector &times, const std::array<BoundaryCond, 2> &bc_type);
+  PiecewisePolyPath(const Vectors &positions, const Vector &times, const std::array<NumericalBoundaryCond, 2> &bc_type);
+
+  /**
+   * \brief Construct a new piecewise 3rd degree polynomial.
+   * @param positions Vectors of path positions at given times.
+   * @param times Vector of times in a strictly increasing order.
+   * @param bc_type the boundary condition type to be applied at both curve endpoints. Available conditions are:
+   *    - 'not-a-knot' (default): the first and second segment at a curve end are the same polynomial.
+   *    - 'clamped': the first derivatives at curves ends are zero.
+   *    - 'natural': the second derivatives at curves end are zero.
+   */
+  PiecewisePolyPath(const Vectors &positions, const Vector &times, const std::string bc_type = "not-a-knot");
 
   /**
    * /brief Evaluate the path at given position.
@@ -75,8 +93,10 @@ class PiecewisePolyPath : public GeometricPath {
  protected:
   void initAsHermite(const Vectors &positions, const Vectors &velocities,
                      const std::vector<value_type> times);
-  void computeCubicSplineCoefficients(const Vectors &positions, const Vector &times,
-          const std::array<BoundaryCond, 2> &bc_type, Matrices &coefficients);
+  Matrices computeCubicSplineCoefficients(const Vectors &positions, const Vector &times,
+          const std::array<BoundaryCond, 2> &bc_type);
+  std::vector<value_type> computeBreakpoints(const Vector &times,
+          const std::array<BoundaryCond, 2> &bc);
   void reset();
   size_t findSegmentIndex(value_type pos) const;
   void checkInputArgs();
@@ -84,7 +104,7 @@ class PiecewisePolyPath : public GeometricPath {
                       const std::array<BoundaryCond, 2> &bc_type);
   void computeDerivativesCoefficients();
   const Matrix &getCoefficient(int seg_index, int order) const;
-  Matrices m_coefficients, m_coefficients_1, m_coefficients_2;
+  Matrices m_coefficients, m_coefficients_1, m_coefficients_2, m_coefficients_3;
   std::vector<value_type> m_breakpoints;
   int m_degree;
 };

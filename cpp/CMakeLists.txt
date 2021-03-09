@@ -5,7 +5,7 @@ project(toppra
   # Disable because not available in CMake 3.5
   #DESCRIPTION "Library computing the time-optimal path parameterization."
   LANGUAGES CXX)
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 # Dynamics
 option(BUILD_WITH_PINOCCHIO "Compile with Pinocchio library" OFF)
