@@ -16,6 +16,7 @@
 - [cpp] Enhance Seidel solver numerical behaviour.
 - [cpp] [#161] Enable to construct spline from 1st and 2nd order derivatives at the curve endpoints
 - [cpp] Implement spline parametrizer
+- [cpp] Implement not-a-knot cubic spline
 
 ### Changed
 - [cpp] [#153] Fix variable mismatch in constraint::CartesianVelocityNorm
